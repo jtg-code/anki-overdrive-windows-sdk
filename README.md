@@ -15,7 +15,7 @@ pip install asyncio
 
 ## Example
 
-´´´
+```
 from anki_sdk.cars import *
 from anki_sdk.controller import *
 import anki_sdk.utils as utils
