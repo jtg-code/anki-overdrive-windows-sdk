@@ -17,13 +17,14 @@ pip install asyncio
 
 ## Example
 
+### async def myDef():
 ```
 from anki_sdk.cars import *
 from anki_sdk.controller import *
 import anki_sdk.utils as utils
 import time
 
-async def testDef():
+async def myDef():
     test_car = carClass("XX:XX:XX:XX:XX:XX")
     test_car_controller = controllerClass(test_car)
     await test_car._connect()
@@ -31,5 +32,23 @@ async def testDef():
     time.sleep(3)
     await test_car._disconnect()
 
-asyncio.run(testDef())
+asyncio.run(myDef())
+```
+
+### def myDef():
+```
+from anki_sdk.cars import *
+from anki_sdk.controller import *
+import anki_sdk.utils as utils
+import time
+
+async def myDef():
+    test_car = carClass("XX:XX:XX:XX:XX:XX")
+    test_car_controller = controllerClass(test_car)
+    test_car.connect()
+    test_car_controller.setSpeed(1000, 1000)
+    time.sleep(3)
+    test_car.disconnect()
+
+myDef()
 ```
