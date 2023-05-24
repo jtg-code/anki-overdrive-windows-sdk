@@ -13,3 +13,11 @@ class ImportDisabled(Exception):
     def __init__(self, reason: str = "Import disabled"):
         self.reason = reason
         super().__init__(self.reason)
+        
+class NotConnected(Exception):
+    """
+    Reason: Reason why the car could not be found
+    """
+    def __init__(self, reason: str = "Car not connected"):
+        self.reason = reason
+        super().__init__(self.reason)

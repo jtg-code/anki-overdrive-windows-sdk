@@ -1,64 +1,143 @@
-import anki_sdk.cars as cars
+"""Controller class file"""
+
 import asyncio
 import struct
-from anki_sdk.exceptions import *
+from anki_sdk import cars
 
-class controllerClass():
-    def __init__(self, carClass: cars.carClass):
-        self.carClass = carClass
+class ControllerClass():
+    """Controller class object
+
+    Args:
+        carClass (carClass): Car to be controlled
+    """
+
+    def __init__(self, car_class: cars.CarClass):
+        self.car_class: cars.CarClass = car_class
         self.speed = 0
         self.accel = 0
-        
+        self.light = (0, 0, 0)
+
     ######
-    def setSpeed(self, speed: int, accel: int = 1000):
-        loop = asyncio.run(self._setSpeed(speed, accel))
-    
-    async def _setSpeed(self, speed: int, accel: int = 1000):
-        command = struct.pack("<BHHB", cars.commandList.SET_SPEED, speed, accel, 0x01)
+    def set_speed(self, speed: int, accel: int = 1000):
+        """Set the vehicle speed
+
+        Args:
+            speed (int): Speed to set.
+            accel (int): Accelration. Defaults to 1000.
+        """
+        asyncio.run(self._set_speed(speed, accel))
+
+    async def _set_speed(self, speed: int, accel: int = 1000):
+        """Set the vehicle speed
+
+        Args:
+            speed (int): Speed to set.
+            accel (int): Accelration. Defaults to 1000.
+        """
+        command = struct.pack("<BHHB", cars.CommandList.SET_SPEED, speed, accel, 0x01)
         self.speed = speed
         self.accel = accel
-        await self.carClass._sendCommand(command)
-            
-    ######
-    def setLane(self, offset: float = 0.0):
-        command = struct.pack("<Bf", cars.commandList.RESET_LANE, offset)
-        self.carClass.sendCommand(command)
+        await self.car_class.async_send_command(command)
 
-    async def _setLane(self, offset: float = 0.0):
-        command = struct.pack("<Bf", cars.commandList.RESET_LANE, offset)
-        await self.carClass._sendCommand(command)
-        
-    def changeLane(self, offset: float):
-        asyncio.run(self._changeLane(offset))
-    
-    async def _changeLane(self, offset: float):
-        command = struct.pack("<BHHf", cars.commandList.CHANGE_LANE, self.speed, self.accel, offset)
-        await self.carClass._sendCommand(command)
-        
-    def leftLane(self, lanes: float):
-        lane = lanes * -44.5
-        self.changeLane(lane)
-        
-    async def _leftLane(self, lanes: float):
-        lane = lanes * -44.5
-        await self._changeLane(lane)
-        
-    def rightLane(self, lanes: float):
-        lane = lanes * 44.5
-        self.changeLane(lane)
-        
-    async def _rightLane(self, lanes: float):
-        lane = lanes * 44.5
-        await self._changeLane(lane)
-        
     ######
-    
-    
-    def setLight(self, Red: float, Green: float, Blue: float, Type: float):
-        loop = asyncio.run(self._setLight(Red, Green, Blue, Type))
-    
-    async def _setLight(self, Red: float, Green: float, Blue: float, Type: float):
-        command = struct.pack('BBB', 2, 29, Type)
-        self.light = (Red, Green, Blue, Type)
-        await self.carClass._sendCommand(command)
+    def set_lane(self, offset: float = 0.0):
+        """Set the current lane for the vehicle (doesn't move the car)
+
+        Args:
+            offset (float): Offset from lane. Defaults to 0.0.
+        """
+        command = struct.pack("<Bf", cars.CommandList.RESET_LANE, offset)
+        self.car_class.send_command(command)
+
+    async def _set_lane(self, offset: float = 0.0):
+        """Set the current lane for the vehicle (doesn't move the car)
+
+        Args:
+            offset (float): Offset from lane. Defaults to 0.0.
+        """
+        command = struct.pack("<Bf", cars.CommandList.RESET_LANE, offset)
+        await self.car_class.async_send_command(command)
+
+    ######
+    def change_lane(self, offset: float):
+        """Change current lane
+
+        -44.5 left
+        44.5 right
         
+        Args:
+            offset (float): How much the car should move.
+        """
+        asyncio.run(self._change_lane(offset))
+
+    async def _change_lane(self, offset: float):
+        """Change current lane
+
+        -44.5 left
+        44.5 right
+        
+        Args:
+            offset (float): How much the car should move.
+        """
+        command = struct.pack("<BHHf", cars.CommandList.CHANGE_LANE, self.speed, self.accel, offset)
+        await self.car_class.async_send_command(command)
+
+    def left_lane(self, lanes: float = 1.0):
+        """Change the lane to left
+
+        Args:
+            lanes (float): How many lanes to left. Default 1.0
+        """
+        lane = lanes * -44.5
+        self.change_lane(lane)
+
+    async def _left_lane(self, lanes: float = 1.0):
+        """Change the lane to left
+
+        Args:
+            lanes (float): How many lanes to left. Default 1.0
+        """
+        lane = lanes * -44.5
+        await self._change_lane(lane)
+
+    def right_lane(self, lanes: float = 1.0):
+        """Change the lane to right
+
+        Args:
+            lanes (float): How many lanes to right. Default 1.0
+        """
+        lane = lanes * 44.5
+        self.change_lane(lane)
+
+    async def _right_lane(self, lanes: float = 1.0):
+        """Change the lane to right
+
+        Args:
+            lanes (float): How many lanes to right. Default 1.0
+        """
+        lane = lanes * 44.5
+        await self._change_lane(lane)
+
+    def set_light(self, red: float, green: float, blue: float, pattern: float):
+        """Set vehicle light
+
+        Args:
+            red (float): Red
+            green (float): Green
+            blue (float): Blue
+            pattern (float): Pattern type
+        """
+        asyncio.run(self._set_light(red, green, blue, pattern))
+
+    async def _set_light(self, red: float, green: float, blue: float, pattern: float):
+        """Set vehicle light
+
+        Args:
+            red (float): Red
+            green (float): Green
+            blue (float): Blue
+            pattern (float): Pattern type
+        """
+        command = struct.pack('BBB', 2, 29, pattern)
+        self.light = (red, green, blue, pattern)
+        await self.car_class.async_send_command(command)
