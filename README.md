@@ -8,39 +8,55 @@
 
 ## Functions
 ```python
-import anki_sdk.cars as cars
-import anki_sdk.controller as controller
-import anki_sdk.utils as utils
+import anki_sdk as sdk
+import threading
+import time
 
-# Utils
-carList: list = utils.scanner(active: bool) # active: Only cars which are turned on -> returns an anki overdrive MAC-address list
-carData: str = utils.getData(address: str) # active: The MAC-address of the vehicle -> returns the manufacturer_data
-
-# Init
-myCar: cars.carClass = cars.carClass("XX:XX:XX:XX")
-myController: controller.controllerClass = controller.controllerClass(myCar)
-
-# Controller functions
-speed, accel = 500, 1000 # Max 1000
-myController.setSpeed(speed, accel)
-
-lanes = 3 # Recommend max 3
-myController.leftLane(lanes)
-myController.rightLane(lanes)
-
-rightLane = 44.5 # One lane right
-leftLane = -44.5 # One lane left
-myController.changeLane(rightLane)
-myController.changeLane(leftLane)
-
-@myCar.notifyCallback(type=cars.Receive.trackChange) # Gets triggered every new track
-def newTrack(sender, data):
-    print("New track")
+def controll_car(address: str):
+    car = sdk.cars.CarClass(address)
+    car.connect()
+    car.start_notify()
+    controller = sdk.controller.ControllerClass(car)
+    print(f"Pong! {car.ping()}ms")
+    controller.set_speed(500, 500)
+    time.sleep(10)
+    controller.left_lane(1.0)
+    time.sleep(10)
+    controller.right_lane(1.0)
+    time.sleep(10)
     
     
-@myCar.notifyCallback(type=cars.Receive.specialTrack) # Gets triggered every special track
-def specialTrack(sender, data):
-    print("Special track")
+    @car.notifycallback(sdk.cars.Receive.Track.TRACK_CHANGE)
+    def new_track(sender, data):
+        print("New Track!")
+        
+    @car.notifycallback(sdk.cars.Receive.Track.FINISHLINE)
+    def finish_line(sender, data):
+        print("Finish!")
+        
+    @car.notifycallback(sdk.cars.Receive.Track.SPECIAL_TRACK)
+    def special_track(sender, data):
+        print("Special Track!")
+        
+    @car.notifycallback(sdk.cars.Receive.Track.STRAIGHT_TRACK)
+    def straight_track(sender, data):
+        print("New Straight Track!")
+        
+    @car.notifycallback(sdk.cars.Receive.Connection.PING_RESPONSE)
+    def ping_response(sender, data):
+        print("Ping Response!")
     
-print(myCar.ping()) # Prints the car ping
+    car.stop_notify()
+    car.disconnect()
+    
+def main():
+    car_list_address = sdk.utils.scanner(False)
+    car_list = {address: sdk.utils.get_data(address) for address in car_list_address}
+    for car in car_list:
+        threading.Thread(target=controll_car, args=[car])
+
+
+
+if __name__ == "__main__":
+    main()
 ```
