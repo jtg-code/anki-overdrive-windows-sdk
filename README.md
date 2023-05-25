@@ -8,39 +8,49 @@
 
 ## Functions
 ```python
-import anki_sdk.cars as cars
-import anki_sdk.controller as controller
-import anki_sdk.utils as utils
+import anki_sdk as sdk
+import time
 
-# Utils
-carList: list = utils.scanner(active: bool) # active: Only cars which are turned on -> returns an anki overdrive MAC-address list
-carData: str = utils.getData(address: str) # active: The MAC-address of the vehicle -> returns the manufacturer_data
-
-# Init
-myCar: cars.carClass = cars.carClass("XX:XX:XX:XX")
-myController: controller.controllerClass = controller.controllerClass(myCar)
-
-# Controller functions
-speed, accel = 500, 1000 # Max 1000
-myController.setSpeed(speed, accel)
-
-lanes = 3 # Recommend max 3
-myController.leftLane(lanes)
-myController.rightLane(lanes)
-
-rightLane = 44.5 # One lane right
-leftLane = -44.5 # One lane left
-myController.changeLane(rightLane)
-myController.changeLane(leftLane)
-
-@myCar.notifyCallback(type=cars.Receive.trackChange) # Gets triggered every new track
-def newTrack(sender, data):
-    print("New track")
+def controll_car(address: str):
+    # Create a new car object with the given address
+    car = sdk.cars.CarClass(address)
+    car.connect()  # Connect to the car
+    car.start_notify()  # Start receiving notifications from the car
+    controller = sdk.controller.ControllerClass(car)
+    print(f"Pong! {car.ping()}ms")  # Print the ping time to the car
+    controller.set_speed(500, 500)  # Set the speed of the car
+    time.sleep(10)  # Wait for 10 seconds
+    controller.left_lane(1.0)  # Move the car to the left lane
+    time.sleep(10)  # Wait for 10 seconds
+    controller.right_lane(1.0)  # Move the car to the right lane
+    time.sleep(10)  # Wait for 10 seconds
     
+    # Define a callback function for when a new track is detected
+    @car.notifycallback(sdk.cars.Receive.Track.TRACK_CHANGE)
+    def new_track(sender, data):
+        print("New Track!")
+        
+    # Define a callback function for when the car crosses the finish line
+    @car.notifycallback(sdk.cars.Receive.Track.FINISHLINE)
+    def finish_line(sender, data):
+        print("Finish!")
+        
+    # Define a callback function for when a special track is encountered
+    @car.notifycallback(sdk.cars.Receive.Track.SPECIAL_TRACK)
+    def special_track(sender, data):
+        print("Special Track!")
+        
+    # Define a callback function for when a straight track is detected
+    @car.notifycallback(sdk.cars.Receive.Track.STRAIGHT_TRACK)
+    def straight_track(sender, data):
+        print("New Straight Track!")
+        
+    # Define a callback function for when a ping response is received
+    @car.notifycallback(sdk.cars.Receive.Connection.PING_RESPONSE)
+    def ping_response(sender, data):
+        print("Ping Response!")
     
-@myCar.notifyCallback(type=cars.Receive.specialTrack) # Gets triggered every special track
-def specialTrack(sender, data):
-    print("Special track")
-    
-print(myCar.ping()) # Prints the car ping
+    car.stop_notify()  # Stop receiving notifications from the car
+    car.disconnect()  # Disconnect from the car
+
 ```

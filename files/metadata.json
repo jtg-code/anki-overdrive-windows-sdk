@@ -1,6 +1,6 @@
 {
     "data": {
-        "version": "1.0.2",
+        "version": "1.0.3", 
         "desc": "Anki Overdrive Windows SDK",
         "link": "https://github.com/jtg-code/anki-overdrive-windows-sdk"
     },

@@ -2,10 +2,10 @@ import json
 import requests
 from pathlib import Path
 
-# def getPath():
-#     main = __file__
-#     main = main.removesuffix("__init__.py")
-#     return main
+import anki_sdk.utils as utils
+import anki_sdk.exceptions as exceptions
+import anki_sdk.controller as controller
+import anki_sdk.cars as cars
 
 def getPath():
     main = Path(__file__).resolve().parent.parent

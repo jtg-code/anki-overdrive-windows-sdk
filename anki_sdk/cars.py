@@ -107,9 +107,9 @@ class Receive(Enum):
         SPECIAL_TRACK: int = (6, 0)
         STRAIGHT_TRACK: int = (38, 16)
 
-    TRACKSCAN_START: int = (23, 13)
-    TRACKSCAN_STOP: int = (22, 13)
-    UNKNOWN: int = 16
+    # UNKNOWN: int = (23, 13)
+    # UNKNOWN: int = (22, 13)
+    # UNKNOWN: int = 16
 
 class CarClass():
     """Car class object
@@ -134,11 +134,11 @@ class CarClass():
         return f"Anki Overdrive carclass | {self.address}"
 
     ### Register the notifycallback type
-    def notifycallback(self, event: tuple | Receive = 17):
+    def notifycallback(self, event: tuple[int, int] | Receive = (17, 0)):
         """@decorator
 
         Args:
-            event (int | Receive): Code when it should get triggered. Defaults to 17.
+            event (tuple[int, int]): Code when it should get triggered. Defaults to (17, 0).
         """
         def wrapper(func):
             if event in self.notify_events:
