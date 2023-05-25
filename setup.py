@@ -81,12 +81,13 @@ def increment_version(version: str):
 
 
 
-def update(install):
+def update(install: bool):
     """Update the package"""
     current_version: str = sdk.all_data["data"]["version"]
     version: str = increment_version(current_version)
     link: str = str(sdk.all_data["extra"]["download"])
     link = link.replace("[VERSION]", str(version))
+    
     if link:
         data = requests.get(link)
         if data.text == "404: Not Found":
@@ -101,9 +102,14 @@ def update(install):
             file.write(data.content)
             
         with zipfile.ZipFile(f"{path}/update/Stable-{version}.zip","r") as zip_ref:
-            zip_ref.extractall(f"{path}/update/Stable-{version}")
+            zip_ref.extractall(f"{path}/update")
                 
         os.remove(f"{path}/update/Stable-{version}.zip")
+        if os.path.exists(f"{path}/update/Stable-{version}"):
+            os.remove(f"{path}/update/Stable-{version}")
+            
+            
+        os.rename(f"{path}/update/anki-overdrive-windows-sdk-Stable-{version}", f"{path}/update/Stable-{version}")
                     
         if install:
             Upgrade(f"{path}/update/Stable-{version}/anki-overdrive-windows-sdk-Stable-{version}")
@@ -117,6 +123,7 @@ def Upgrade(directory: str = path):
     Args:
         directory (str): Directory with new files_. Defaults to path.
     """
+    print("Upgrading...")
     file_paths = []
     for root, dirs, files in os.walk(directory):
         for file in files:
@@ -125,8 +132,13 @@ def Upgrade(directory: str = path):
 
     for file in file_paths:
         if file.endswith(".py"):
-            os.system(f"python {file}")
-
+            print(f"Testing: {file}")
+            try:
+                os.system(f"python {file}")
+            except Exception as error:
+                print(f"Error {error} in {file}")
+                
+                
 if __name__ == "__main__":
     if not UPDATE_PACKAGE:
         if not os.path.exists("address.list"):
