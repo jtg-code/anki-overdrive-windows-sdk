@@ -9,7 +9,6 @@ import sys
 import requests
 from pathlib import Path
 import zipfile
-import glob
 
 from anki_sdk.exceptions import ImportDisabled
 import anki_sdk.utils as util
