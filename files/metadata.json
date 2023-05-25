@@ -1,0 +1,12 @@
+{
+    "data": {
+        "version": "1.0.0", 
+        "desc": "Anki Overdrive Windows SDK",
+        "link": "https://github.com/jtg-code/anki-overdrive-windows-sdk"
+    },
+
+    "extra": {
+        "download": "https://github.com/jtg-code/anki-overdrive-windows-sdk/archive/refs/heads/Stable-[VERSION].zip"
+    }
+
+}
