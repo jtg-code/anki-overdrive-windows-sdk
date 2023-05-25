@@ -107,9 +107,9 @@ class Receive(Enum):
         SPECIAL_TRACK: int = (6, 0)
         STRAIGHT_TRACK: int = (38, 16)
 
-    UNKNOWN: int = (23, 13)
-    UNKNOWN: int = (22, 13)
-    UNKNOWN: int = 16
+    # UNKNOWN: int = (23, 13)
+    # UNKNOWN: int = (22, 13)
+    # UNKNOWN: int = 16
 
 class CarClass():
     """Car class object
