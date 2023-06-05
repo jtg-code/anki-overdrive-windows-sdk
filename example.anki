@@ -1,0 +1,6 @@
+// comment
+function myFunc():
+    print("Hello world! // Hello My World!") // Comment
+
+myFunc()
+input("Waiting...")
