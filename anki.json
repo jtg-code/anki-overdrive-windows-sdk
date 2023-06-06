@@ -1,0 +1,10 @@
+{
+    "function": "def",
+    "#include utils": "import anki_sdk.utils as utils",
+    "#include cars": "import anki_sdk.cars as cars",
+    "#include controllers": "import anki_sdk.controllers as controllers",
+    "#include api": "import anki_sdk.api as api",
+    "new Car": "cars.CarClass",
+    "#import": "import",
+    "//": "#"
+}
