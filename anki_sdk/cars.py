@@ -4,9 +4,13 @@ import asyncio
 import time as t
 import threading
 import struct
-from enum import Enum
 import bleak
-from anki_sdk.exceptions import NotConnected
+try:
+    from anki_sdk.exceptions import NotConnected
+    import anki_sdk.utils as utils
+except ModuleNotFoundError:
+    from exceptions import NotConnected
+    import utils
 
 SERVICE_UUID: str = "BE15BEEF-6186-407E-8381-0BD89C4D8DF4"
 READ_UUID: str = "BE15BEE0-6186-407E-8381-0BD89C4D8DF4"
@@ -98,7 +102,7 @@ class Receive:
         """Track notify events
 
         Track:
-            TRACK_CHANGE (tuple): A new Track
+            TRACK_CHANGE (tuple): A new Track. \n
             FINISHLINE: (tuple): Drive over finishline.\n
             SPECIAL_TRACK: (tuple): Drive over special track\n
             STRAIGHT_TRACK: (tuple): Drive over straight track.\n
@@ -119,16 +123,19 @@ class CarClass():
         carAddress (str): vehicle MAC-address
     """
     ## Make everything ready
-    def __init__(self, car_address: str):
+    def __init__(self, car_address: str, debug: bool = False):
         self.address: str = car_address
+        self.name = utils.get_data(car_address)["name"]
         self.client: bleak.BleakClient = bleak.BleakClient(self.address)
         #connection status
         self.connected: bool = False
         self.wait_ping: bool = False
         self.notify_events: dict = {}
         #tmp var
+        self.debug = debug
         self.before = ""
         self.start_ping_time = None
+        
 
     ## Get object as string
     def __str__(self):
@@ -173,6 +180,7 @@ class CarClass():
             raise NotConnected("Not connected to vehicle")
 
     # connect to car & enable SDK mode
+    
     def connect(self):
         """Connect with car
 
@@ -182,6 +190,7 @@ class CarClass():
         loop = asyncio.new_event_loop()
         loop.run_until_complete(self.async_connect())
         return loop
+    
     async def async_connect(self):
         """Connect with car
 
@@ -191,7 +200,7 @@ class CarClass():
         await self.client.connect()
         self.connected: bool = True
         await self.async_send_command(b"\x90\x01\x01")
-        return True
+        return self.name
 
     # Ping to car
     def ping(self):
@@ -243,7 +252,7 @@ class CarClass():
             worked (bool): Disconnect worked.
         """
         try:
-            if self.connected:
+            if self.client.is_connected:
                 if stop_car:
                     command = struct.pack("<BHHB", CommandList.SET_SPEED, 0, 1000, 0x01)
                     await self.async_send_command(command)
@@ -295,15 +304,16 @@ class CarClass():
                 self.wait_ping = False
 
             self.trigger_notify(sender, data)
-            with open("log.txt", "a") as file:
-                if data[0] != 16:
-                    text = "["
-                    i = 0
-                    for v in list(data):
-                        text += f"{v}(%{i}),"
-                        i += 1
-                    text += "]"
-                    file.write(f"{text}\n")
+            if self.debug:
+                with open("log.txt", "a") as file:
+                    if data[0] != 16:
+                        text = "["
+                        i = 0
+                        for v in list(data):
+                            text += f"{v}(%{i}),"
+                            i += 1
+                        text += "]"
+                        file.write(f"{text}\n")
 
         async def loop_def():
             while True:

@@ -2,11 +2,18 @@ import json
 import requests
 from pathlib import Path
 
-import anki_sdk.utils as utils
-import anki_sdk.exceptions as exceptions
-import anki_sdk.controller as controller
-import anki_sdk.cars as cars
-import anki_sdk.api as api
+try:
+    import anki_sdk.utils as utils
+    import anki_sdk.exceptions as exceptions
+    import anki_sdk.controllers as controllers
+    import anki_sdk.cars as cars
+    import anki_sdk.api as api
+except ModuleNotFoundError:
+    import utils
+    import exceptions
+    import controllers
+    import cars
+    import api
 
 def getPath():
     main = Path(__file__).resolve().parent.parent
@@ -29,16 +36,19 @@ def loadAll(path):
         data = json.load(file)
         return data
         
-path = getPath()
-data = getData(path)
-extra = getExtra(path)
-all_data = loadAll(path)
+try:
+    path = getPath()
+    data = getData(path)
+    extra = getExtra(path)
+    all_data = loadAll(path)
 
 
-__version__ = data["version"]
-__desc__ = data["desc"]
-__link__ = data["link"]
-__update__ = extra["download"]
+    __version__ = data["version"]
+    __desc__ = data["desc"]
+    __link__ = data["link"]
+    __update__ = extra["download"]
+except Exception as e:
+    pass
 
 
 def checkVersion(version):

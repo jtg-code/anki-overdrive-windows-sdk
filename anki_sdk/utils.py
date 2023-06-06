@@ -1,8 +1,10 @@
 """Utils file from anki sdk"""
 import asyncio
 import bleak
-from anki_sdk.exceptions import NotFoundError
-
+try:
+    from anki_sdk.exceptions import NotFoundError
+except ModuleNotFoundError:
+    from exceptions import NotFoundError
 
 async def async_scanner(active: bool = True):
     """Scan for cars
@@ -15,6 +17,8 @@ async def async_scanner(active: bool = True):
     """
     device_list = await bleak.BleakScanner.discover()
     result: list = []
+    if len(device_list) == 0:
+        raise NotFoundError()
     for device in device_list:
         if device.name is not None:
             if "Drive" in device.name:
@@ -37,6 +41,29 @@ def scanner(active: bool = True):
     value: list = asyncio.run(async_scanner(active))
     return value
 
+def decodeCarname(manufacturerData):
+    carId = manufacturerData[1]
+    carnames = {
+        0: 'x52',
+        8: 'Groundshock',
+        9: 'Skull',
+        10: 'Thermo',
+        11: 'Nuke',
+        12: 'Guardian',
+        14: 'Bigbang',
+        15: 'Free Wheel',
+        16: 'x52',
+        17: 'x52 Ice',
+        18: 'MXT',
+        19: 'Ice Charger',
+    }
+
+    if carId in carnames:
+        return carnames[carId]
+    else:
+        return "Unknown"
+
+
 async def async_get_data(address: str):
     """Get manufacturer data from car
 
@@ -44,16 +71,18 @@ async def async_get_data(address: str):
         address (str): Car MAC-address
 
     Returns:
-        bytes: list with all Anki Overdrive vehicle MAC-address
+        dict: Data from the car
     """
-    device_list = await bleak.BleakScanner.discover()
-    car_data: list = [device for device in device_list if device.address == address]
-    if len(car_data) <= 0:
-        raise NotFoundError("Address not valid")
-    data_table: list = car_data[0].metadata["manufacturer_data"]
-    data: list = list(data_table)
-    value: bytes = data_table[data[0]]
-    return value
+    scanner = bleak.BleakScanner()
+    car_data = await scanner.find_device_by_address(address)
+    data_table: list = car_data.metadata["manufacturer_data"][61374]
+    value = bytearray(data_table)
+    car_name = decodeCarname(value)
+    answer = {
+        "name": car_name,
+        "manufacturer_data": value
+    }
+    return answer
 
 def get_data(address: str):
     """Get manufacturer data from car
@@ -62,10 +91,15 @@ def get_data(address: str):
         address (str): Car MAC-address
 
     Returns:
-        bytes: list with all Anki Overdrive vehicle MAC-address
+        dict: Data from the car
     """
-    value: bytes = asyncio.run(async_get_data(address))
+    value: dict = asyncio.run(async_get_data(address))
+
     return value
+
+
+
+
 
 if __name__ == "__main__":
     get_data("F8:21:8E:B8:E0:85")

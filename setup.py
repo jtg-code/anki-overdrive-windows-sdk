@@ -9,6 +9,7 @@ import sys
 import requests
 from pathlib import Path
 import zipfile
+from anki_sdk import utils
 
 args = [arg.lower() for arg in sys.argv]
 
@@ -44,8 +45,7 @@ def main():
             scan = False
         else:
             active = ""
-    import anki_sdk.utils as util
-    car_list: list = util.scanner(scan)
+    car_list: list = utils.scanner(scan)
     return car_list
 
 def increment_version(version: str):
@@ -117,7 +117,7 @@ def Upgrade(directory: str = path):
     """Upgrade anki sdk
 
     Args:
-        directory (str): Directory with new files_. Defaults to path.
+        directory (str): Directory with new files. Defaults to path.
     """
     print("Upgrading...")
     try:
