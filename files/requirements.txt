@@ -1,0 +1,5 @@
+bleak
+asyncio
+Flask
+pyinstaller
+C:\Users\juliu\AppData\Local\Programs\Python\Python311
