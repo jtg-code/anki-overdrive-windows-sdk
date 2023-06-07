@@ -1,14 +1,5 @@
 # Anki Overdrive windows SDK
 
-<script>
-function test() {
-    console.log("Hello World!")
-}
-</script>
-
-<button name="button" onclick="test()">Click me</button>
-
-
 ## installation
 1. Download the newest release</li>
 2. Extract the ```anki_sdk``` directory
