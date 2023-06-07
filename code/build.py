@@ -7,7 +7,9 @@ import shutil
 
 # import PyInstaller.__main__ as pyi
 
-ICON = "logo.ico"
+path = pathlib.Path(__file__).parent
+ICON = f"code/logo.ico"
+COMPILER = f"code/anki.json"
 
 OPTIONS = [
     '--onefile',  # Kompiliere in eine einzige ausführbare Datei
@@ -37,7 +39,7 @@ class build_file():
         self.PROJECT, self.PATH, self.FILE = PROJECT, PATH, FILE
         self.options: list = OPTIONS
         
-        with open("anki.json", "r") as file:
+        with open(COMPILER, "r") as file:
             self.compiler = json.load(file)
             
         with open(FILE, "r") as file:
@@ -51,8 +53,7 @@ class build_file():
     
         if "tkinter" in self.text:
             self.options.insert(0, "--windowed")
-            
-        print(self.options)
+
         self.compile(self.token)
             
     

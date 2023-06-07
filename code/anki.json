@@ -8,5 +8,7 @@
     "new Controller": "controllers.ControllerClass",
     "#import": "import",
     "#": "@",
-    "//": "#"
+    "//": "#",
+    "log": "print",
+    ".end": "exit()"
 }
