@@ -1,11 +1,30 @@
 # Anki Overdrive windows SDK
 
-## installation
+## Installation
 1. Download the newest release</li>
 2. Extract the ```anki_sdk``` directory
 3. Run ```pip install -r requirements.txt``` <b>OR</b> run ```python setup.py```
 4. For update run ```python setup.py --update --upgrade```
 
+
+## .anki code language
+### Syntax
+````json
+{
+    "function": "def",
+    "#include utils": "import anki_sdk.utils as utils",
+    "#include cars": "import anki_sdk.cars as cars",
+    "#include controllers": "import anki_sdk.controllers as controllers",
+    "#include api": "import anki_sdk.api as api",
+    "new Car": "cars.CarClass",
+    "new Controller": "controllers.ControllerClass",
+    "#import": "import",
+    "#": "@",
+    "//": "#",
+    "log": "print",
+    ".end": "exit()"
+}
+````
 
 ## Default Example
 ```python
